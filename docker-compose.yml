@@ -1,0 +1,77 @@
+version: '2'
+
+services:
+    nginx:
+        build:
+            context: .docker/nginx
+
+        image: project/magento-nginx
+
+        container_name: project_magento2_nginx
+
+        volumes:
+            - ./.docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+            - ./.docker/nginx/conf/upstream.conf:/etc/nginx/conf.d/upstream.conf
+            - ./.docker/nginx/sites-enabled:/etc/nginx/sites-enabled
+            - ./:/www/project
+
+        ports:
+            - 80:80
+            - 443:443
+
+        links:
+            - php
+
+        tty: true
+
+        env_file:
+            - ./.project-env
+
+    php:
+        build:
+            context: .docker/php
+
+        image: project/magento-php
+
+        container_name: project_magento2_php
+
+        volumes:
+            - ./.docker/php/conf/php.ini:/usr/local/etc/php/php.ini
+            - ./.docker/php/conf/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+            - ./.docker/php/conf/project.pool.conf:/usr/local/etc/php-fpm.d/www.conf
+            - ./.docker/php/logs:/usr/local/var/log
+            - ./:/www/project
+
+        ports:
+            - "9001:9000"
+
+        links:
+            - database
+
+        tty: true
+
+        env_file:
+            - ./.project-env
+
+        environment:
+            PHP_IDE_CONFIG: "serverName=project"
+
+    database:
+        build:
+            context: .docker/database
+
+        image: project/magento-database
+
+        container_name: project_magento2_db
+
+        volumes:
+            - ./.docker/database/data:/var/lib/mysql
+            - ./.docker/database/setup:/docker-entrypoint-initdb.d
+
+        ports:
+            - 3307:3306
+
+        tty: true
+
+        env_file:
+            - ./.project-env

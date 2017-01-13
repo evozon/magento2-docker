@@ -1,0 +1,6 @@
+MYSQL_ROOT_PASSWORD=root_pass_here
+MYSQL_DATABASE=project_db
+MYSQL_USER=user_name_here
+MYSQL_PASSWORD=user_passphrase_here
+
+XDEBUG_PORT=9000
